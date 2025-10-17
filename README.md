@@ -60,7 +60,19 @@ L'application expose également une API REST :
 - Kubernetes (minikube pour les tests locaux)
 - kubectl
 
-### Étape 1 : Construire l'image Docker
+### Étape 1 : Récupérer l'image Docker
+
+#### Option A : Télécharger depuis Docker Hub (recommandé)
+
+```bash
+# Télécharger l'image depuis Docker Hub
+docker pull julesche/movies-watchlist:latest
+
+# Taguer l'image localement (optionnel)
+docker tag julesche/movies-watchlist:latest movies-watchlist:latest
+```
+
+#### Option B : Construire l'image localement
 
 ```bash
 # Construire l'image Docker de l'application
@@ -70,7 +82,10 @@ docker build -t movies-watchlist:latest .
 ### Étape 2 : Charger l'image dans minikube (pour les tests locaux)
 
 ```bash
-# Si vous utilisez minikube
+# Si vous utilisez minikube avec l'image depuis Docker Hub
+minikube image load julesche/movies-watchlist:latest
+
+# Ou si vous avez construit l'image localement
 minikube image load movies-watchlist:latest
 ```
 
