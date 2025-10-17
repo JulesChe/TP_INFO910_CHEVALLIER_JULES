@@ -2,6 +2,8 @@
 
 - Jules Chevallier
 
+docker pull julesche/movies-watchlist:latest
+
 ## Description de l'application
 
 Cette application est un gestionnaire de films à regarder (watchlist) développé avec Node.js et MongoDB. Elle permet aux utilisateurs de :
