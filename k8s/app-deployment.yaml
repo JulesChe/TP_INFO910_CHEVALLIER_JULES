@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movies-watchlist-app
+  namespace: movies-watchlist
+  labels:
+    app: movies-watchlist-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: movies-watchlist-app
+  template:
+    metadata:
+      labels:
+        app: movies-watchlist-app
+    spec:
+      containers:
+      - name: movies-watchlist-app
+        image: movies-watchlist:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGODB_URI
+          value: "mongodb://admin:password123@mongodb:27017/movieswatchlist?authSource=admin"
+        - name: PORT
+          value: "3000"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: movies-watchlist-service
+  namespace: movies-watchlist
+  labels:
+    app: movies-watchlist-app
+spec:
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+  selector:
+    app: movies-watchlist-app
+  type: LoadBalancer

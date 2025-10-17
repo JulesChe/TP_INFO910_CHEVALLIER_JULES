@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies Watchlist</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        h1::before {
+            content: '🎬 ';
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .movie-form {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .movie {
+            border: 2px solid #ddd;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            background: white;
+            transition: all 0.3s;
+        }
+        .movie:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateX(5px);
+        }
+        .movie.watched {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-color: #28a745;
+        }
+        .movie h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 1.5em;
+        }
+        .movie.watched h3 {
+            text-decoration: line-through;
+            color: #666;
+        }
+        .movie-info {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .movie-info span {
+            display: inline-block;
+            margin-right: 15px;
+            padding: 5px 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .movie-info span::before {
+            margin-right: 5px;
+        }
+        .year::before {
+            content: '📅';
+        }
+        .genre::before {
+            content: '🎭';
+        }
+        .movie-actions {
+            margin-top: 15px;
+        }
+        .movie-actions button {
+            margin-right: 10px;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        .watched-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        .watched-btn:hover {
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+        .delete-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        .delete-btn:hover {
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            font-size: 1.2em;
+        }
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .stats span {
+            margin: 0 15px;
+            font-weight: bold;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 10px;
+        }
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Movies Watchlist</h1>
+        <p class="subtitle">Keep track of movies you want to watch</p>
+
+        <div class="stats" id="stats">
+            <span>Total: <strong id="total-count">0</strong></span>
+            <span>To Watch: <strong id="to-watch-count">0</strong></span>
+            <span>Watched: <strong id="watched-count">0</strong></span>
+        </div>
+
+        <div class="movie-form">
+            <h2>Add New Movie</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="title">Movie Title:</label>
+                    <input type="text" id="title" placeholder="e.g., The Shawshank Redemption" required>
+                </div>
+                <div class="form-group">
+                    <label for="year">Year:</label>
+                    <input type="number" id="year" placeholder="e.g., 1994" min="1900" max="2100">
+                </div>
+                <div class="form-group">
+                    <label for="genre">Genre:</label>
+                    <input type="text" id="genre" placeholder="e.g., Drama">
+                </div>
+            </div>
+            <button onclick="addMovie()">Add to Watchlist</button>
+        </div>
+
+        <div id="movies-container">
+            <div class="loading">Loading movies...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        async function loadMovies() {
+            try {
+                const response = await fetch(`${API_BASE}/movies`);
+                const movies = await response.json();
+                displayMovies(movies);
+                updateStats(movies);
+            } catch (error) {
+                console.error('Error loading movies:', error);
+                document.getElementById('movies-container').innerHTML = '<p>Error loading movies</p>';
+            }
+        }
+
+        function updateStats(movies) {
+            const total = movies.length;
+            const watched = movies.filter(m => m.watched).length;
+            const toWatch = total - watched;
+
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('to-watch-count').textContent = toWatch;
+            document.getElementById('watched-count').textContent = watched;
+        }
+
+        function displayMovies(movies) {
+            const container = document.getElementById('movies-container');
+
+            if (movies.length === 0) {
+                container.innerHTML = '<p class="loading">No movies yet. Add your first movie above!</p>';
+                return;
+            }
+
+            container.innerHTML = movies.map(movie => `
+                <div class="movie ${movie.watched ? 'watched' : ''}">
+                    <h3>${movie.title}</h3>
+                    <div class="movie-info">
+                        ${movie.year ? `<span class="year">${movie.year}</span>` : ''}
+                        ${movie.genre ? `<span class="genre">${movie.genre}</span>` : ''}
+                    </div>
+                    <small style="color: #999;">Added: ${new Date(movie.createdAt).toLocaleDateString()}</small>
+                    <div class="movie-actions">
+                        <button class="watched-btn" onclick="toggleMovie('${movie._id}', ${!movie.watched})">
+                            ${movie.watched ? '⏪ Mark as To Watch' : '✅ Mark as Watched'}
+                        </button>
+                        <button class="delete-btn" onclick="deleteMovie('${movie._id}')">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function addMovie() {
+            const title = document.getElementById('title').value.trim();
+            const year = document.getElementById('year').value ? parseInt(document.getElementById('year').value) : null;
+            const genre = document.getElementById('genre').value.trim();
+
+            if (!title) {
+                alert('Please enter a movie title');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/movies`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ title, year, genre })
+                });
+
+                if (response.ok) {
+                    document.getElementById('title').value = '';
+                    document.getElementById('year').value = '';
+                    document.getElementById('genre').value = '';
+                    loadMovies();
+                } else {
+                    alert('Error adding movie');
+                }
+            } catch (error) {
+                console.error('Error adding movie:', error);
+                alert('Error adding movie');
+            }
+        }
+
+        async function toggleMovie(id, watched) {
+            try {
+                const response = await fetch(`${API_BASE}/movies/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ watched })
+                });
+
+                if (response.ok) {
+                    loadMovies();
+                } else {
+                    alert('Error updating movie');
+                }
+            } catch (error) {
+                console.error('Error updating movie:', error);
+                alert('Error updating movie');
+            }
+        }
+
+        async function deleteMovie(id) {
+            if (!confirm('Are you sure you want to delete this movie?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/movies/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadMovies();
+                } else {
+                    alert('Error deleting movie');
+                }
+            } catch (error) {
+                console.error('Error deleting movie:', error);
+                alert('Error deleting movie');
+            }
+        }
+
+        // Allow Enter key to submit form
+        document.getElementById('title').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addMovie();
+        });
+        document.getElementById('year').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addMovie();
+        });
+        document.getElementById('genre').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addMovie();
+        });
+
+        loadMovies();
+    </script>
+</body>
+</html>
