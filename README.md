@@ -2,7 +2,11 @@
 
 - Jules Chevallier
 
-docker pull julesche/movies-watchlist:latest
+**Image Docker disponible sur GitHub Container Registry**
+
+```bash
+docker pull ghcr.io/julesche/movies-watchlist:latest
+```
 
 ## Description de l'application
 
@@ -62,36 +66,39 @@ L'application expose également une API REST :
 - Kubernetes (minikube pour les tests locaux)
 - kubectl
 
-### Étape 1 : Récupérer l'image Docker
+### Méthode 1 : Déploiement avec l'image pré-buildée (Recommandé)
 
-#### Option A : Télécharger depuis Docker Hub (recommandé)
+L'image Docker est disponible sur **GitHub Container Registry** et sera téléchargée automatiquement lors du déploiement.
+
+**Avantage :** Pas besoin de builder l'image localement, le déploiement est immédiat.
 
 ```bash
-# Télécharger l'image depuis Docker Hub
-docker pull julesche/movies-watchlist:latest
-
-# Taguer l'image localement (optionnel)
-docker tag julesche/movies-watchlist:latest movies-watchlist:latest
+# L'image ghcr.io/julesche/movies-watchlist:latest sera téléchargée automatiquement
+# Passez directement à l'étape de déploiement ci-dessous
 ```
 
-#### Option B : Construire l'image localement
+### Méthode 2 : Build local (Pour développement)
+
+Si vous souhaitez modifier et tester l'application :
+
+#### Étape 1 : Construire l'image localement
 
 ```bash
 # Construire l'image Docker de l'application
-docker build -t movies-watchlist:latest .
+docker build -t ghcr.io/julesche/movies-watchlist:latest .
 ```
 
-### Étape 2 : Charger l'image dans minikube (pour les tests locaux)
+#### Étape 2 : Charger dans Minikube (si vous utilisez Minikube)
 
 ```bash
-# Si vous utilisez minikube avec l'image depuis Docker Hub
-minikube image load julesche/movies-watchlist:latest
+# Configurer le daemon Docker de Minikube
+eval $(minikube docker-env)
 
-# Ou si vous avez construit l'image localement
-minikube image load movies-watchlist:latest
+# Construire directement dans Minikube
+docker build -t ghcr.io/julesche/movies-watchlist:latest .
 ```
 
-### Étape 3 : Déployer sur Kubernetes
+### Déploiement sur Kubernetes
 
 ```bash
 # Appliquer tous les manifestes Kubernetes
@@ -106,7 +113,7 @@ kubectl apply -f k8s/app-deployment.yaml
 kubectl apply -f k8s/ingress.yaml
 ```
 
-### Étape 4 : Vérifier le déploiement
+### Vérification du déploiement
 
 ```bash
 # Vérifier que tous les pods sont en cours d'exécution
@@ -119,7 +126,7 @@ kubectl get services -n movies-watchlist
 minikube service movies-watchlist-service -n movies-watchlist --url
 ```
 
-### Étape 5 : Accéder à l'application
+### Accès à l'application
 
 #### Option 1 : Via LoadBalancer (minikube)
 
@@ -163,6 +170,30 @@ Puis accédez à `http://movies-watchlist.local`
 │   ├── app-deployment.yaml    # Déploiement de l'application
 │   └── ingress.yaml           # Configuration Ingress
 └── README.md                  # Ce fichier
+```
+
+## Image Docker sur GitHub Container Registry
+
+L'image de l'application est publiée sur **GitHub Container Registry (GHCR)**, ce qui facilite le déploiement :
+
+- **URL de l'image** : `ghcr.io/julesche/movies-watchlist:latest`
+- **Accès** : Public (aucune authentification requise)
+- **Versions disponibles** :
+  - `latest` : Version la plus récente
+  - `v1.0.0` : Version stable taggée
+
+### Avantages de GHCR
+
+- Téléchargement automatique lors du déploiement Kubernetes
+- Pas besoin de builder l'image localement
+- Intégré directement avec le dépôt GitHub
+- Image toujours à jour avec le code source
+
+### Tester l'image localement
+
+```bash
+# Télécharger et lancer l'image
+docker run -p 3000:3000 -e MONGODB_URI=mongodb://mongodb:27017/movieswatchlist ghcr.io/julesche/movies-watchlist:latest
 ```
 
 ## Gestion des Secrets Kubernetes

@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
       - name: movies-watchlist-app
-        image: movies-watchlist:latest
-        imagePullPolicy: Never
+        image: ghcr.io/julesche/movies-watchlist:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
         env:
