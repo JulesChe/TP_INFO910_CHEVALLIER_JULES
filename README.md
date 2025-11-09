@@ -99,6 +99,7 @@ kubectl apply -f k8s/
 
 # Ou appliquer dans l'ordre recommandé :
 kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/mongodb-secret.yaml    # Créer le secret en premier
 kubectl apply -f k8s/mongodb-pv.yaml
 kubectl apply -f k8s/mongodb-deployment.yaml
 kubectl apply -f k8s/app-deployment.yaml
@@ -156,12 +157,39 @@ Puis accédez à `http://movies-watchlist.local`
 │   └── index.html             # Interface utilisateur web
 ├── k8s/                       # Manifestes Kubernetes
 │   ├── namespace.yaml         # Namespace dédié
+│   ├── mongodb-secret.yaml    # Secrets pour MongoDB (credentials)
 │   ├── mongodb-pv.yaml        # Volume persistant MongoDB
 │   ├── mongodb-deployment.yaml # Déploiement MongoDB
 │   ├── app-deployment.yaml    # Déploiement de l'application
 │   └── ingress.yaml           # Configuration Ingress
 └── README.md                  # Ce fichier
 ```
+
+## Gestion des Secrets Kubernetes
+
+L'application utilise un Secret Kubernetes pour stocker de manière sécurisée les credentials MongoDB. Le fichier `k8s/mongodb-secret.yaml` contient les informations suivantes encodées en base64 :
+
+- Username root MongoDB
+- Password root MongoDB
+- Nom de la base de données
+- Username et password applicatifs (pour usage futur)
+
+### Personnaliser les credentials
+
+Pour modifier les credentials par défaut :
+
+```bash
+# Encoder vos propres valeurs en base64
+echo -n "votre_nouveau_password" | base64
+
+# Puis modifier le fichier k8s/mongodb-secret.yaml avec les nouvelles valeurs
+```
+
+**Note de sécurité** : Dans un environnement de production, les secrets ne devraient jamais être commités dans Git. Utilisez plutôt des solutions comme :
+- `kubectl create secret` pour créer des secrets directement
+- Sealed Secrets pour chiffrer les secrets
+- External Secrets Operator
+- HashiCorp Vault
 
 ## Développement local
 
@@ -218,7 +246,7 @@ kubectl delete namespace movies-watchlist
 - **Deployments** : Gestion des répliques et mises à jour
 - **Services** : Exposition des applications
 - **PersistentVolumes** : Stockage persistant pour MongoDB
-- **ConfigMaps/Secrets** : Configuration via variables d'environnement
+- **Secrets** : Gestion sécurisée des credentials MongoDB (encodés en base64)
 - **Probes** : Vérifications de santé (liveness/readiness)
 - **Resource Limits** : Limitation des ressources CPU/mémoire
 - **Ingress** : Routage HTTP externe

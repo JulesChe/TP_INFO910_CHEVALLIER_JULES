@@ -22,8 +22,23 @@ spec:
         ports:
         - containerPort: 3000
         env:
+        - name: MONGO_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-root-username
+        - name: MONGO_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-root-password
+        - name: MONGO_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-database
         - name: MONGODB_URI
-          value: "mongodb://admin:password123@mongodb:27017/movieswatchlist?authSource=admin"
+          value: "mongodb://$(MONGO_ROOT_USERNAME):$(MONGO_ROOT_PASSWORD)@mongodb:27017/$(MONGO_DATABASE)?authSource=admin"
         - name: PORT
           value: "3000"
         resources:
